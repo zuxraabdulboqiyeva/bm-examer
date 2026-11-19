@@ -1,7 +1,8 @@
 from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.http import FileResponse, Http404
+from django.urls import include, path, re_path
+from django.views.static import serve
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -11,6 +12,13 @@ from apps.question_bank.views import QuestionBankViewSet
 from apps.results.views import AttemptViewSet
 from apps.subjects.views import SubjectViewSet
 from apps.tests_app.views import BankQuestionViewSet, TestViewSet
+
+def spa(request):
+    index = settings.FRONTEND_DIST / 'index.html'
+    if not index.exists():
+        raise Http404('Frontend build topilmadi: frontend papkasida "npm run build" ni ishga tushiring')
+    return FileResponse(open(index, 'rb'), content_type='text/html')
+
 
 router = DefaultRouter()
 router.register('users', UserViewSet, basename='user')
@@ -29,4 +37,8 @@ urlpatterns = [
     path('api/auth/change-password/', ChangePasswordView.as_view()),
     path('api/bootstrap/', BootstrapView.as_view()),
     path('api/', include(router.urls)),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # Yuklangan rasmlar (savol rasmlari, avatarlar)
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    # Qolgan barcha manzillar — React sayt (sahifani yangilaganda ham ishlaydi)
+    re_path(r'^(?!api/|admin/|media/|static/).*$', spa),
+]
