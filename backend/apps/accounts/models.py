@@ -28,5 +28,11 @@ class User(AbstractUser):
     def is_student(self):
         return self.role == self.Role.STUDENT
 
+    def save(self, *args, **kwargs):
+        # "createsuperuser" bilan yaratilgan foydalanuvchi saytda ham admin bo'ladi
+        if self.is_superuser:
+            self.role = self.Role.ADMIN
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f'{self.get_full_name() or self.username} ({self.role})'
