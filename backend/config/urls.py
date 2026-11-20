@@ -1,8 +1,10 @@
+import mimetypes
+
 from django.conf import settings
 from django.contrib import admin
+from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404
 from django.urls import include, path, re_path
-from django.views.static import serve
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -12,6 +14,16 @@ from apps.question_bank.views import QuestionBankViewSet
 from apps.results.views import AttemptViewSet
 from apps.subjects.views import SubjectViewSet
 from apps.tests_app.views import BankQuestionViewSet, TestViewSet
+
+def media(request, path):
+    """Yuklangan rasmni beradi — diskdan (lokal) yoki bazadan (serverda), qaysi storage yoqilganiga qarab."""
+    if not path or '..' in path or not default_storage.exists(path):
+        raise Http404()
+    f = default_storage.open(path)
+    resp = FileResponse(f, content_type=mimetypes.guess_type(path)[0] or 'application/octet-stream')
+    resp['Cache-Control'] = 'public, max-age=86400'
+    return resp
+
 
 def spa(request):
     index = settings.FRONTEND_DIST / 'index.html'
@@ -38,7 +50,7 @@ urlpatterns = [
     path('api/bootstrap/', BootstrapView.as_view()),
     path('api/', include(router.urls)),
     # Yuklangan rasmlar (savol rasmlari, avatarlar)
-    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^media/(?P<path>.*)$', media),
     # Qolgan barcha manzillar — React sayt (sahifani yangilaganda ham ishlaydi)
     re_path(r'^(?!api/|admin/|media/|static/).*$', spa),
 ]

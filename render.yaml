@@ -1,0 +1,30 @@
+# BM Examer — Render "Blueprint" fayli. Render shu faylni o'qib, saytni o'zi sozlaydi.
+# Qo'llanma: RENDER.md
+services:
+  - type: web
+    name: bm-examer
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: >-
+      cd backend &&
+      pip install -r requirements.txt &&
+      python manage.py collectstatic --noinput &&
+      python manage.py migrate --noinput &&
+      python manage.py ensure_admin
+    startCommand: cd backend && gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      # Quyidagilarni Render o'zi so'raydi — qiymatini siz kiritasiz (maxfiy, repoga yozilmaydi)
+      - key: DATABASE_URL
+        sync: false
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
