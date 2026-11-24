@@ -13,3 +13,6 @@ frontend/node_modules/
 # Boshqa
 .DS_Store
 Thumbs.db
+
+# Taqdimot videosi (katta fayl, git emas)
+video/
