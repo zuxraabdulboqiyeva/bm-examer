@@ -13,6 +13,8 @@ const html = htm.bind(React.createElement);
    utils/  — yordamchi funksiyalar
    ========================================================= */
 const KEYS = { db:'bm_examer.db.v1', session:'bm_examer.session', theme:'bm_examer.theme.v2' };
+// Demo akkauntlar (admin/admin123 va h.k.) faqat lokal sinov rejimida ko'rsatiladi
+const SHOW_DEMO = import.meta.env.DEV;
 const store = {
   get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
   set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } },
@@ -369,6 +371,7 @@ function LoginPage(){
     catch(ex){ setErr(errText(ex, "Login yoki parol noto'g'ri")); setBusy(false); }
   };
   const submit = e => { e.preventDefault(); enter(u, p); };
+  // Demo akkauntlar faqat kompyuterdagi sinov rejimida (npm run dev) ko'rinadi, internetdagi saytda yo'q
   const demo = [['admin','admin123','Admin','Bekzod Alimov'],['dilnoza','teacher123',"O'qituvchi",'Dilnoza Rahimova · Matematika'],['aziz','student123',"O'quvchi",'Aziz Qodirov']];
   return html`<div className="auth"><${AuthBrand}/>
     <section className="auth-side"><form className="card auth-form" onSubmit=${submit} noValidate>
@@ -376,9 +379,9 @@ function LoginPage(){
       <${Field} label="Login"><input id="login-u" className="input" autoComplete="username" value=${u} onChange=${e => { setU(e.target.value); setErr(''); }} placeholder="masalan, aziz"/><//>
       <${Field} label="Parol" error=${err}><input id="login-p" className="input" type="password" autoComplete="current-password" value=${p} onChange=${e => { setP(e.target.value); setErr(''); }}/><//>
       <button className="btn primary lg block" type="submit" disabled=${busy}>${busy ? 'Kirilmoqda…' : 'Kirish'}</button>
-      <div className="or">demo akkauntlar</div>
-      <div className="demo-list">${demo.map(([un,pw,role,name]) => html`<button type="button" key=${un} className="demo-btn" disabled=${busy} onClick=${() => enter(un, pw)}>
-        <span className="avatar">${name.split(' ').map(s => s[0]).slice(0,2).join('')}</span><span style=${{ flex:1, minWidth:0 }}><b>${role} sifatida kirish</b><span>${un} / ${pw}</span></span><${Icon} n="right" s=${16}/></button>`)}</div>
+      ${SHOW_DEMO && html`<div className="or">demo akkauntlar</div>`}
+      ${SHOW_DEMO && html`<div className="demo-list">${demo.map(([un,pw,role,name]) => html`<button type="button" key=${un} className="demo-btn" disabled=${busy} onClick=${() => enter(un, pw)}>
+        <span className="avatar">${name.split(' ').map(s => s[0]).slice(0,2).join('')}</span><span style=${{ flex:1, minWidth:0 }}><b>${role} sifatida kirish</b><span>${un} / ${pw}</span></span><${Icon} n="right" s=${16}/></button>`)}</div>`}
       <p className="small muted" style=${{ textAlign:'center' }}>Akkauntingiz yo'qmi? <a href="#" onClick=${e => { e.preventDefault(); navigate('/register'); }}>Ro'yxatdan o'ting</a></p>
     </form></section></div>`;
 }
@@ -1769,7 +1772,7 @@ function ProfilePage(){
           <${Field} label="Telefon"><input id="pf-ph" className="input" value=${f.phone} onChange=${set('phone')}/><//>
         </div><button className="btn primary" type="submit" style=${{ alignSelf:'flex-start' }}>Saqlash</button></form>
       <form className="card card-body" onSubmit=${changePw} style=${{ display:'flex', flexDirection:'column', gap:14 }}><h3>Parolni o'zgartirish</h3>
-        <${Field} label="Joriy parol" error=${pwErr.old} hint="Demo akkauntlarda: admin123, teacher123 yoki student123"><input id="pw-old" className="input" type="password" autoComplete="current-password" value=${pw.old} onChange=${e => { setPw(Object.assign({}, pw, { old:e.target.value })); setPwErr({}); }}/><//>
+        <${Field} label="Joriy parol" error=${pwErr.old} hint=${SHOW_DEMO ? 'Demo akkauntlarda: admin123, teacher123 yoki student123' : undefined}><input id="pw-old" className="input" type="password" autoComplete="current-password" value=${pw.old} onChange=${e => { setPw(Object.assign({}, pw, { old:e.target.value })); setPwErr({}); }}/><//>
         <div className="form-grid">
           <${Field} label="Yangi parol" error=${pwErr.n1}><input id="pw-n1" className="input" type="password" autoComplete="new-password" value=${pw.n1} onChange=${e => { setPw(Object.assign({}, pw, { n1:e.target.value })); setPwErr({}); }}/><//>
           <${Field} label="Takrorlang" error=${pwErr.n2}><input id="pw-n2" className="input" type="password" autoComplete="new-password" value=${pw.n2} onChange=${e => { setPw(Object.assign({}, pw, { n2:e.target.value })); setPwErr({}); }}/><//>
