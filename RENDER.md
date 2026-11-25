@@ -2,6 +2,10 @@
 
 Natija: sayt `https://bm-examer.onrender.com` (yoki shunga o'xshash) manzilida ishlaydi.
 
+> **Hozirgi holat:** sayt Render'ning o'z bepul bazasidan (`bm-examer-db`) foydalanadi — hech narsa qo'lda kiritilmaydi.
+> Render bepul bazasi ma'lum muddatdan (hozircha ~30 kun) keyin o'chadi. Undan oldin bazani Neon'ga ko'chirish
+> yoki Render bazasini pullik tarifga o'tkazish kerak. Neon'ga o'tish yo'li quyida yozilgan.
+
 Ikkita bepul xizmat kerak:
 - **Neon** — ma'lumotlar bazasi (foydalanuvchilar, testlar, natijalar, rasmlar shu yerda saqlanadi)
 - **Render** — saytning o'zi

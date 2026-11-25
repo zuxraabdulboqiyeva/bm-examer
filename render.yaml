@@ -21,10 +21,21 @@ services:
         value: "0"
       - key: DJANGO_SECRET_KEY
         generateValue: true
-      # Quyidagilarni Render o'zi so'raydi — qiymatini siz kiritasiz (maxfiy, repoga yozilmaydi)
+      # Baza manzili Render'ning o'z bazasidan avtomatik olinadi (qo'lda kiritish shart emas)
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: bm-examer-db
+          property: connectionString
+      # Quyidagilarni Render o'zi so'raydi — qiymatini siz kiritasiz (maxfiy, repoga yozilmaydi)
       - key: ADMIN_USERNAME
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
+
+# Render'ning bepul PostgreSQL bazasi (eslatma: bepul baza ma'lum muddatdan keyin o'chadi — RENDER.md ga qarang)
+databases:
+  - name: bm-examer-db
+    plan: free
+    region: frankfurt
+    databaseName: bm_examer
+    user: bm_examer

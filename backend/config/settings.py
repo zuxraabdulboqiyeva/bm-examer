@@ -78,7 +78,11 @@ DATABASE_URL = _clean_db_url(os.environ.get('DATABASE_URL', ''))
 if DATABASE_URL:
     # Serverda: PostgreSQL (masalan Neon). Ulanishlar qayta ishlatiladi, SSL majburiy.
     import dj_database_url
-    DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, conn_health_checks=True, ssl_require=True)}
+    _db = dj_database_url.parse(DATABASE_URL, conn_max_age=600, conn_health_checks=True)
+    # Tashqi baza (Neon va h.k.) — SSL majburiy; Render ichki manzili (nuqtasiz, masalan dpg-xxx-a) — shart emas
+    if '.' in (_db.get('HOST') or ''):
+        _db.setdefault('OPTIONS', {}).setdefault('sslmode', 'require')
+    DATABASES = {'default': _db}
 else:
     DATABASES = {
         'default': {
