@@ -63,7 +63,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-DATABASE_URL = os.environ.get('DATABASE_URL', '')
+def _clean_db_url(raw):
+    """Neon'dan nusxalashda qo'shilib qolishi mumkin bo'lgan ortiqcha qismlarni olib tashlaydi:
+    bo'sh joylar, qo'shtirnoqlar, `psql '...'` yoki `DATABASE_URL=...` ko'rinishi."""
+    s = (raw or '').strip()
+    if s.lower().startswith('psql'):
+        s = s[4:].strip()
+    if s.upper().startswith('DATABASE_URL='):
+        s = s.split('=', 1)[1].strip()
+    return s.strip('\'"` \t\r\n')
+
+
+DATABASE_URL = _clean_db_url(os.environ.get('DATABASE_URL', ''))
 if DATABASE_URL:
     # Serverda: PostgreSQL (masalan Neon). Ulanishlar qayta ishlatiladi, SSL majburiy.
     import dj_database_url
